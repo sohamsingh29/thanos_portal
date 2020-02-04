@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>thanos' portal</title>
+        <!--this is the css of the page-->
         <style>
         body {
             margin: 0;
@@ -57,17 +58,18 @@
         </header>
         <main>
             <section id ="form">
-                <form>
+                <form><!--there is no action in this form right now-->
                     <input id="name" placeholder="Your name" />
                     <input id="email" placeholder="Your email" />
                     <button id="submit" type="submit">Submit</button>
                 </form>
             </section>
         </main>
+        <!--three.js library imported through script-->
         <script src="js/three.min.js"></script>
         <script>
             var scene , light , cam ,portalLight, renderer , clock , portalParticles = [], smokeParticles = [];
-
+            //initializing scene , camera , lights
             function initScene () {
                 scene = new THREE.Scene();
                 light = new THREE.DirectionalLight( 0xffffff , 0.6 );
@@ -90,7 +92,7 @@
 
                 particleSetup();
             }
-
+            //a function to setup all the particles
             function particleSetup() {
                 let loader = new THREE.TextureLoader();
                 //how to load png as texture
@@ -107,7 +109,7 @@
                         transparent : true
                     });
 
-
+                    //portal particles 
                     for (let p = 880; p>250; p--){
                         let particle = new THREE.Mesh( portalGeo , portalMaterial );
                         particle.position.set(
@@ -120,7 +122,7 @@
                         scene.add(particle);
                         portalParticles.push(particle);
                     };
-
+                    //smoke particles in the background
                     for (let p = 0; p<40; p++){
                         let smoke = new THREE.Mesh( smokeGeo , smokeMaterial );
                         smoke.position.set(
@@ -139,7 +141,7 @@
 
                 });
             }
-
+            //code to animate the particles in a loop
             function animate() {
                 let delta = clock.getDelta();
                 portalParticles.forEach(p => {
