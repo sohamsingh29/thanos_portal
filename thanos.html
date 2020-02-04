@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>thanos' portal</title>
+        <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+        header {
+            position: fixed;
+            color : white;
+            top: 0px;
+
+        }
+        #form {
+            position: absolute;
+            top: 180px;
+            left: 620px;
+            background: rgba( 0 , 0 , 0 , 0.4);
+            border-radius: 7px;
+            height: 400px;
+            width: 300px;
+            padding-top: 50px;
+        }
+
+        input {
+            display: block;
+            outline: none;
+            border: none;
+            margin: 10px 10px 10px 50px;
+            padding: 10px;
+            background: rgba( 30 , 30 , 30 , 0.4);
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+        }
+        button {
+            background: rgba( 30 , 30 , 30 , 0.4);
+            border: thin;
+            border-radius: 5px;
+            color: grey;
+            outline: none;
+            width: 70px;
+            height: 40px;
+            margin-left: 100px;
+        }
+
+        </style>       
+    </head>
+    <body>
+        <header>
+            <h1>this is the portal to earth</h1><br/><br/><br/><br/><br/>
+        </header>
+        <main>
+            <section id ="form">
+                <form>
+                    <input id="name" placeholder="Your name" />
+                    <input id="email" placeholder="Your email" />
+                    <button id="submit" type="submit">Submit</button>
+                </form>
+            </section>
+        </main>
+        <script src="js/three.min.js"></script>
+        <script>
+            var scene , light , cam ,portalLight, renderer , clock , portalParticles = [], smokeParticles = [];
+
+            function initScene () {
+                scene = new THREE.Scene();
+                light = new THREE.DirectionalLight( 0xffffff , 0.6 );
+                light.position.set(0,0,1);
+
+                scene.add(light);
+
+                cam = new THREE.PerspectiveCamera( 80 , window.innerWidth / window.innerHeight , 1, 10000);
+                cam.position.z = 1000;
+                scene.add(cam);
+
+                portalLight = new THREE.PointLight( 0x1f78ff , 0.5 , 380 , 1.7);
+                portalLight.position.set( 0, 0, 250);
+                scene.add(portalLight);
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor( 0x000000 , 1 ); //environment color
+                renderer.setSize( window.innerWidth , window.innerHeight );
+                document.body.appendChild( renderer.domElement );
+
+                particleSetup();
+            }
+
+            function particleSetup() {
+                let loader = new THREE.TextureLoader();
+                //how to load png as texture
+                loader.load("smoke.png", function(texture) {
+                    portalGeo = new THREE.PlaneBufferGeometry( 350 , 350 );
+                    portalMaterial = new THREE.MeshStandardMaterial({
+                        map : texture,
+                        transparent : true
+                    });
+
+                    smokeGeo = new THREE.PlaneBufferGeometry( 1000 , 1000 );
+                    smokeMaterial = new THREE.MeshStandardMaterial({
+                        map : texture,
+                        transparent : true
+                    });
+
+
+                    for (let p = 880; p>250; p--){
+                        let particle = new THREE.Mesh( portalGeo , portalMaterial );
+                        particle.position.set(
+                            0.5 * p * Math.cos(( 4 * p * Math.PI ) / 180 ), //the equation for cone spiral to set all particles position
+                            0.5 * p * Math.sin(( 4 * p * Math.PI ) / 180 ),
+                            0.1 * p
+                        );
+                        particle.rotation.z = Math.random()*360;
+                        particle.material.opacity = 0.6;
+                        scene.add(particle);
+                        portalParticles.push(particle);
+                    };
+
+                    for (let p = 0; p<40; p++){
+                        let smoke = new THREE.Mesh( smokeGeo , smokeMaterial );
+                        smoke.position.set(
+                            Math.random()*1000 - 500,
+                            Math.random()*400 - 200,
+                            25
+                        );
+                        smoke.rotation.z = Math.random() * 360;
+                        smoke.material.opacity = 0.2;
+                        scene.add(smoke);
+                        smokeParticles.push(smoke);
+                    };
+
+                    clock = new THREE.Clock();
+                    animate();
+
+                });
+            }
+
+            function animate() {
+                let delta = clock.getDelta();
+                portalParticles.forEach(p => {
+                    p.rotation.z -= delta*1.5;
+                });
+                smokeParticles.forEach(p => {
+                    p.rotation.z -= delta*0.2;
+                });
+
+                if (Math.random() >= 0.9) {
+                    portalLight.power = 300 + Math.random()*500;
+                }
+                renderer.render( scene , cam );
+                requestAnimationFrame(animate);
+            }
+
+            initScene();
+        </script>
+    </body>
+</html>
